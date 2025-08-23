@@ -26,10 +26,12 @@ type RegisterResponse struct {
 func (s *Service) Register(req RegisterRequest) (RegisterResponse, error) {
 	//TODO - we should verify phone number with verification code
 
+	//validate phonenumber
 	if _, err := phonenumber.IsValid(req.PhoneNumber); err != nil {
 		return RegisterResponse{}, errors.New(err.Error())
 	}
 
+	//check uniqueness
 	if isUnique, err := s.repo.isPhoneNumberUnique(req.PhoneNumber); err != nil || !isUnique {
 		if err != nil {
 			return RegisterResponse{}, fmt.Errorf("unexpected error: %w", err)
@@ -40,6 +42,7 @@ func (s *Service) Register(req RegisterRequest) (RegisterResponse, error) {
 		}
 	}
 
+	//validate name
 	if len(req.Name) < 3 {
 		return RegisterResponse{}, errors.New("name is too short")
 	}

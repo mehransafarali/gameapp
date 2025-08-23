@@ -1,11 +1,11 @@
 package main
 
 import (
-	"GameApp/service/userservice"
+	"GameApp/pkg/phonenumber"
 	"fmt"
 )
 
 func main() {
-	res, err := userservice.IsPhoneValid("091")
+	res, err := phonenumber.IsValid("09127642279")
 	fmt.Println(res, ", ", err, "___")
 }
