@@ -1,9 +1,33 @@
 package mysql
 
-import "GameApp/entity"
+import (
+	"GameApp/entity"
+	"database/sql"
+	"fmt"
+)
 
-//func (d DB)  {}
+func (d MySQLDB) IsPhoneNumberUnique(phoneNumber string) (bool, error) {
+	user := entity.User{}
+	var createdAt []uint8
+	row := d.db.QueryRow(`select * from users where phone_number = ?`, phoneNumber)
+	err := row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &createdAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return true, nil
+		}
+		return false, fmt.Errorf("mysql query error: %w", err)
+	}
 
-func (d DB) isPhoneNumberUnique(phoneNumber string) (bool, error) { return false, nil }
+	return false, nil
+}
 
-func (d DB) Register(u entity.User) (entity.User, error) { return entity.User{}, nil }
+func (d MySQLDB) Register(u entity.User) (entity.User, error) {
+	res, err := d.db.Exec(`insert into users(name, phone_number) values(?, ?)`, u.Name, u.PhoneNumber)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("can not insert user: %w", err)
+	}
+
+	id, _ := res.LastInsertId()
+	u.ID = uint(id)
+	return u, nil
+}
