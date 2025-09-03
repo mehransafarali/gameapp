@@ -1,31 +1,31 @@
 package main
 
 import (
-	"GameApp/entity"
-	"GameApp/repository/mysql"
 	"fmt"
+	"log"
+	"net/http"
 )
 
 func main() {
+	http.HandleFunc("/user/register", Register)
 
+	port := ":8080"
+	log.Println("Server is listening at port", port[1:]+"...")
+	http.ListenAndServe(port, nil)
 }
 
-func TestUserMethods() {
-	mysqlRepo := mysql.New()
-	user, err := mysqlRepo.Register(entity.User{
-		ID:          0,
-		PhoneNumber: "09127644",
-		Name:        "mehran safarali",
-	})
-	if err != nil {
-		fmt.Println("can not register user: ", err)
+func Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		fmt.Fprintf(w, "invalid method")
 	} else {
-		fmt.Println(user)
+		/*		data, _ := io.ReadAll(r.Body)
+				RegisterReq := userservice.RegisterRequest{}
+				err := json.Unmarshal(data, &RegisterReq)
+				if err != nil {
+					log.Println(err)
+				}
+				db := mysql.New()
+				RegisteredUser, err := db.Register(RegisterReq)
+				fmt.Print(string(data))*/
 	}
-
-	isUnique, err := mysqlRepo.IsPhoneNumberUnique(user.PhoneNumber)
-	if err != nil {
-		fmt.Println("unique error: ", err)
-	}
-	fmt.Println("isUnique", isUnique)
 }
