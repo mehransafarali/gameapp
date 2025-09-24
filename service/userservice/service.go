@@ -12,6 +12,7 @@ type Repository interface {
 	IsPhoneNumberUnique(phoneNumber string) (bool, error)
 	Register(u entity.User) (entity.User, error)
 	GetUserByPhoneNumber(phoneNumber string) (entity.User, bool, error)
+	GetUserByID(id uint) (entity.User, error)
 }
 type Service struct {
 	repo Repository
@@ -29,6 +30,14 @@ type RegisterResponse struct {
 type LoginRequest struct {
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`
+}
+
+type ProfileRequest struct {
+	ID uint `json:"id"`
+}
+
+type ProfileResponse struct {
+	Name string `json:"name"`
 }
 type LoginResponse struct{}
 
@@ -95,4 +104,12 @@ func (s *Service) Login(req LoginRequest) (LoginResponse, error) {
 	}
 
 	return LoginResponse{}, nil
+}
+
+func (s *Service) Profile(req ProfileRequest) (ProfileResponse, error) {
+	user, err := s.repo.GetUserByID(req.ID)
+	if err != nil {
+		return ProfileResponse{}, fmt.Errorf("unexpected error: %w", err)
+	}
+	return ProfileResponse{Name: user.Name}, nil
 }

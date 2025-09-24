@@ -50,7 +50,6 @@ func (d MySQLDB) GetUserByPhoneNumber(phoneNumber string) (entity.User, bool, er
 }
 
 func (d MySQLDB) Login(phone_number, password string) (bool, error) {
-	//var createdAt []uint8
 	row := d.db.QueryRow(`select phone_number, password from users where phone_number =?  and password= ?`, phone_number, password)
 	var resPhoneNumber, resPassword string
 	err := row.Scan(&resPhoneNumber, &resPassword)
@@ -62,4 +61,19 @@ func (d MySQLDB) Login(phone_number, password string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (d MySQLDB) GetUserByID(id uint) (entity.User, error) {
+	user := entity.User{}
+	var createdAt []uint8
+	row := d.db.QueryRow(`select * from users where id = ?`, id)
+	err := row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &user.Password, &createdAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return entity.User{}, fmt.Errorf("user not found")
+		}
+		return entity.User{}, fmt.Errorf("mysql query error: %w", err)
+	}
+
+	return user, nil
 }
